@@ -69,6 +69,10 @@ onMounted(loadBorrows)
     <p v-if="actionMessage" class="status-banner">{{ actionMessage }}</p>
     <div v-if="loading" class="card muted">Loading your borrows...</div>
     <div v-else-if="errorMessage" class="card error">{{ errorMessage }}</div>
+    <div v-else-if="!borrows.length" class="card muted empty-state">
+      <h2>No borrows yet</h2>
+      <p>You have not borrowed any books yet. Browse the collection and pick your next read.</p>
+    </div>
 
     <div v-else class="borrow-list">
       <article v-for="borrow in borrows" :key="borrow.id" class="borrow-card">

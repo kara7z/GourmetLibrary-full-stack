@@ -21,6 +21,8 @@ class BorrowController extends Controller
     public function borrow(Request $request, Book $book)
     {
         $userId = $request->user()->id;
+        $activeBorrows = $book->borrows()->where('status', 'borrowed')->count();
+        $availableCopies = max($book->total_copies - $book->damaged_quantity - $activeBorrows, 0);
 
         $alreadyBorrowed = Borrow::where('user_id', $userId)
             ->where('book_id', $book->id)
@@ -29,6 +31,10 @@ class BorrowController extends Controller
 
         if ($alreadyBorrowed) {
             return response()->json(['message' => 'You already have this book borrowed.'], 409);
+        }
+
+        if ($availableCopies < 1) {
+            return response()->json(['message' => 'No copies are currently available for borrowing.'], 409);
         }
 
         $borrow = Borrow::create([

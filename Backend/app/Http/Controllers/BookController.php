@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
-use App\Models\Category;
+use App\Models\Borrow;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Book::with('category');
+        $query = Book::with('category')
+            ->withCount([
+                'borrows as active_borrows_count' => fn($query) => $query->where('status', 'borrowed'),
+            ]);
 
         if ($request->has('q')) {
             $q = $request->q;
@@ -38,16 +41,36 @@ class BookController extends Controller
 
         $books = $query->paginate(10);
 
+        $books->getCollection()->transform(function ($book) {
+            $availableCopies = max($book->total_copies - $book->damaged_quantity - $book->active_borrows_count, 0);
+            $book->available_copies = $availableCopies;
+            $book->collection_status = $availableCopies > 0 ? 'available' : 'unavailable';
+
+            return $book;
+        });
+
         return response()->json($books);
     }
 
 
-    public function show(Book $book)
+    public function show(Request $request, Book $book)
     {
-        $book->load('category');
+        $book->load('category')
+            ->loadCount([
+                'borrows as active_borrows_count' => fn($query) => $query->where('status', 'borrowed'),
+            ]);
 
+        if ($request->boolean('track_view')) {
+            $book->increment('consultation_count');
+            $book->refresh();
+            $book->load('category')
+                ->loadCount([
+                    'borrows as active_borrows_count' => fn($query) => $query->where('status', 'borrowed'),
+                ]);
+        }
 
-        $book->increment('consultation_count');
+        $book->available_copies = max($book->total_copies - $book->damaged_quantity - $book->active_borrows_count, 0);
+        $book->collection_status = $book->available_copies > 0 ? 'available' : 'unavailable';
 
         return response()->json($book);
     }
@@ -62,6 +85,8 @@ class BookController extends Controller
             'publication_date' => 'nullable|date',
             'category_id' => 'required|exists:categories,id',
             'is_new_arrival' => 'boolean',
+            'damaged_quantity' => 'integer|min:0',
+            'total_copies' => 'required|integer|min:1',
         ]);
 
         $book = Book::create($fields);
@@ -82,7 +107,8 @@ class BookController extends Controller
             'publication_date' => 'nullable|date',
             'category_id' => 'exists:categories,id',
             'is_new_arrival' => 'boolean',
-            'damaged_quantity' => 'integer|min:0'
+            'damaged_quantity' => 'integer|min:0',
+            'total_copies' => 'integer|min:1',
         ]);
 
         $book->update($fields);

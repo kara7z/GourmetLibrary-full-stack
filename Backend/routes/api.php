@@ -7,7 +7,7 @@ use App\Http\Controllers\BorrowController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/message', fn() => response()->json(['message' => 'GourmetLibrary API']));
+Route::get('/message', fn() => response()->json(['message' => 'Welcome to the reading room']));
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

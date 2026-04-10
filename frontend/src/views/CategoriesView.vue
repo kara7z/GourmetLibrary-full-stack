@@ -1,12 +1,18 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { api } from '@/lib/api'
 
 const categories = ref([])
 const loading = ref(true)
 const errorMessage = ref('')
 
-const featuredCategories = computed(() => categories.value.slice(0, 6))
+const featuredCategories = computed(() => categories.value)
+const maxBooksCount = computed(() => Math.max(...categories.value.map((item) => item.books_count || 0), 1))
+
+function widthFor(count) {
+  return `${Math.max(18, Math.round(((count || 0) / maxBooksCount.value) * 100))}%`
+}
 
 async function loadCategories() {
   loading.value = true
@@ -47,6 +53,10 @@ onMounted(loadCategories)
         <p class="category-count">{{ category.books_count || 0 }} books</p>
         <h2>{{ category.name }}</h2>
         <p>{{ category.description || 'This category is ready for new titles and recommendations.' }}</p>
+        <div class="category-meter">
+          <span class="category-meter-fill" :style="{ width: widthFor(category.books_count) }"></span>
+        </div>
+        <RouterLink class="secondary-button compact" :to="`/categories/${category.id}`">Open category</RouterLink>
       </article>
     </div>
   </section>

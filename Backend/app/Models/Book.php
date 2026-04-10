@@ -15,7 +15,8 @@ class Book extends Model
         'is_new_arrival',
         'consultation_count',
         'borrow_count',
-        'damaged_quantity'
+        'damaged_quantity',
+        'total_copies',
     ];
 
     protected $casts = [
