@@ -186,14 +186,16 @@ button {
 .home-page,
 .page-section,
 .detail-page,
-.auth-page {
+.auth-page,
+.error-page {
   display: grid;
   gap: 1.5rem;
 }
 
 .hero-panel,
 .detail-layout,
-.auth-page {
+.auth-page,
+.error-page {
   display: grid;
   gap: 1.5rem;
 }
@@ -593,6 +595,22 @@ button {
 
 .search-suggestion-item span {
   color: var(--muted);
+}
+
+.error-page {
+  min-height: 60vh;
+  place-items: center;
+}
+
+.error-card {
+  width: min(640px, 100%);
+  padding: 2rem;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(14px);
 }
 
 .stat-card strong {

@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/message', fn() => response()->json(['message' => 'Welcome to the reading room']));
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book}', [BookController::class, 'show']);

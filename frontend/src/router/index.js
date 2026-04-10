@@ -8,6 +8,9 @@ import BorrowsView from '../views/BorrowsView.vue'
 import AdminView from '../views/AdminView.vue'
 import AuthView from '../views/AuthView.vue'
 import SearchView from '../views/SearchView.vue'
+import ForbiddenView from '../views/ForbiddenView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
+import ServerErrorView from '../views/ServerErrorView.vue'
 import { isAdmin, isAuthenticated } from '../stores/session'
 
 const router = createRouter({
@@ -60,6 +63,21 @@ const router = createRouter({
       component: AdminView,
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    {
+      path: '/403',
+      name: 'forbidden',
+      component: ForbiddenView,
+    },
+    {
+      path: '/500',
+      name: 'server-error',
+      component: ServerErrorView,
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFoundView,
+    },
   ],
 })
 
@@ -69,7 +87,7 @@ router.beforeEach((to) => {
   }
 
   if (to.meta.requiresAdmin && !isAdmin.value) {
-    return { name: 'home' }
+    return { name: 'forbidden' }
   }
 
   return true
